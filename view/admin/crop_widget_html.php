@@ -1,5 +1,5 @@
 <div id="st_wdgt" class="updated fade">
-	<p>
+	<p class="message">
 		<strong>The thumbnail is not currently square:</strong>
 		please drag a selection on the image below, then <button id="commit_crop" disabled="true">save this crop</button>
 	</p>

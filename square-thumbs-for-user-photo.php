@@ -188,7 +188,7 @@ class UserPhotoSquareThumbnails extends UserPhotoSquareThumbnails_Plugin
 
 		// Data to send
 		$data = array();
-		$data['message'] = "How does this look?";
+		$data['success'] = true;
 		$data['thumbnail_src'] = $this->userphoto_dir_url() . '/' . $userdata->userphoto_thumb_file;
 		
 		// Make JSON

@@ -36,7 +36,7 @@ function make_crop_widget( data )
 	// Set the thumbnail dimension in the global context
 	thumbnail_dimension = data.thumbnail_dimension;
 	// Action for committing the crop
-	jQuery( '#commit_crop' ).click( commit_crop );
+	jQuery( 'button#commit_crop' ).click( commit_crop );
 }
 
 function check_crop( img, crop )
@@ -66,10 +66,25 @@ function commit_crop()
 		width: jQuery( this ).attr( 'crop_width' ),
 		height: jQuery( this ).attr( 'crop_height' )
 	};
-	jQuery.post( 'admin-ajax.php', data, check_crop, 'json' );
+	jQuery.post( 'admin-ajax.php', data, check_reply, 'json' );
 }
 
-function check_crop()
+function check_reply( data )
 {
-	
+	// Whatever happens we want to remove the area select stuff
+	jQuery( '.imgareaselect-outer' ).add( '.imgareaselect-selection' ).add( '.imgareaselect-border1' ).add( '.imgareaselect-border2' ).remove();
+	// If it failed, we want to show a special message and flash it
+	if ( ! data.success ) {
+		jQuery( '#st_wdgt' ).empty().append( '<p><strong>Sorry.</strong> Something went wrong, please reload the page and try again.</p>' );
+		jQuery( '#st_wdgt' ).animate( { backgroundColor: '#ffffe0' }, 300).animate( { backgroundColor: '#fffbcc' }, 300).animate( { backgroundColor: '#ffffe0' }, 300).animate( { backgroundColor: '#fffbcc' }, 300);
+		return;
+	}
+	// All OK? Get the user to check.
+	jQuery( '#st_wdgt .message' ).html( 'Please check the image below, if you are not happy you can reupload the image and try again.' );
+	// Change the image to the newly cropped thumbnail
+	jQuery( '#st_wdgt .image img' ).attr( 'src', data.thumbnail_src ).attr( 'height', thumbnail_dimension ).attr( 'width', thumbnail_dimension );
+	// More flashing! Yay!
+	jQuery( '#st_wdgt' ).animate( { backgroundColor: '#ffffe0' }, 300).animate( { backgroundColor: '#fffbcc' }, 300).animate( { backgroundColor: '#ffffe0' }, 300).animate( { backgroundColor: '#fffbcc' }, 300);
 }
+
+
