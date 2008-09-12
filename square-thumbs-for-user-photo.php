@@ -142,7 +142,21 @@ class UserPhotoSquareThumbnails extends UserPhotoSquareThumbnails_Plugin
 			$this->remove_original_image();
 			return;
 		}
-		// ...obviously not square. We'll add the crop dialog.
+
+		// ...obviously not square.... hmmm
+		
+		// Does an original photo exist? Otherwise we've no chance.
+		$original_file = get_usermeta( $profileuser->ID, 'squarethumbs_original_file' );
+		$original_path = $this->userphoto_dir_path() . '/' . $original_file;
+		if ( ! $original_file || ! file_exists( $original_path ) ) {
+			// OK. This is awkward, we're going to have to ask the user to re-upload their pic
+			error_log( "Adding admin notice" );
+			$this->add_admin_notice( __("<strong>The user photo you have previously uploaded is not square.</strong> Please reupload your user photo below, and you will then be able to choose a square crop of it for the thumbnail.") );
+			return;
+		}
+				
+		// We'll add the crop dialog.
+		error_log( 'Adding the crop dialog' );
 
 		// Add the JS. jQuery, imgAreaSelect and our own jQuery reliant script
 		wp_enqueue_script( 'jquery' ); // Probably present, but let's be sure
@@ -154,10 +168,6 @@ class UserPhotoSquareThumbnails extends UserPhotoSquareThumbnails_Plugin
 		// Add the CSS
 		$main_css = $this->url() . '/css/crop-dialog.css';
 		wp_enqueue_style( 'square_thumbs_crop_dialog', $main_css );
-		
-		// Add the HTML
-		$this->add_action( 'show_user_profile', 'crop_prompt_html', 9 );
-		$this->add_action( 'edit_user_profile', 'crop_prompt_html', 9 );		
 	}
 	
 	public function crop_commit()
@@ -181,14 +191,22 @@ class UserPhotoSquareThumbnails extends UserPhotoSquareThumbnails_Plugin
 		$target_path = $this->userphoto_dir_path() . '/' . $userdata->userphoto_thumb_file;
 
 		// Read into GD
+		$success = true;
 		$src_gd = $this->image_create_from_file( $img_path );
 		$target_gd = imagecreatetruecolor( $thumbnail_dimension, $thumbnail_dimension );
-		assert( imagecopyresampled ( $target_gd, $src_gd, 0, 0, $x1, $y1, $thumbnail_dimension, $thumbnail_dimension, $width, $height ) );
-		assert( imagejpeg( $target_gd, $target_path, 80 ) );
+		if( $success && ! $target_gd ) {
+			$success = false;
+		}
+		if( ! imagecopyresampled ( $target_gd, $src_gd, 0, 0, $x1, $y1, $thumbnail_dimension, $thumbnail_dimension, $width, $height ) ) {
+			$success = false;
+		}
+		if( $success && ! imagejpeg( $target_gd, $target_path, 80 ) ) {
+			$success = false;
+		}
 
 		// Data to send
 		$data = array();
-		$data['success'] = true;
+		$data['success'] = $success;
 		$data['thumbnail_src'] = $this->userphoto_dir_url() . '/' . $userdata->userphoto_thumb_file;
 		
 		// Make JSON
@@ -244,14 +262,6 @@ class UserPhotoSquareThumbnails extends UserPhotoSquareThumbnails_Plugin
 			$user_id = $current_user->ID;
 		}
 		return get_user_to_edit( $user_id );
-	}
-	
-	public function crop_prompt_html()
-	{
-		$template_vars = array(
-			'title' => __( "Crop your photo", 'user-photo' )
-		);
-		$this->render_admin ( 'crop_prompt_html', $template_vars );
 	}
 	
 	public function crop_widget_html()
