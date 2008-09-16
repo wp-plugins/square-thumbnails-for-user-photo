@@ -80,7 +80,7 @@ function check_reply( data )
 		return;
 	}
 	// All OK? Get the user to check.
-	jQuery( '#st_wdgt .message' ).html( 'Please check the image below, if you are not happy you can reupload the image and try again.' );
+	jQuery( '#st_wdgt .message' ).html( 'Thank you. We\'ve saved your image, please check it below and if you are not happy you can reupload the image and try again.' );
 	// Change the image to the newly cropped thumbnail
 	jQuery( '#userphoto img' ).eq( 1 ).add( '#st_wdgt .image img' ).attr( 'src', data.thumbnail_src ).attr( 'height', thumbnail_dimension ).attr( 'width', thumbnail_dimension );
 	// More flashing! Yay!

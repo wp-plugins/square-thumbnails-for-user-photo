@@ -29,6 +29,9 @@ Author URI: http://simonwheatley.co.uk/wordpress1/
 require_once( dirname (__FILE__) . '/plugin.php' );
 require_once( ABSPATH . '/wp-includes/js/tinymce/plugins/spellchecker/classes/utils/JSON.php' );
 
+define( 'ST_MAX_SIDE', 600 ); // The max side dimension we will present for cropping
+define( 'ST_IMAGE_JPEG_QUALITY', 85 ); // The JPEG quality to use
+
 /**
  *
  * @package default
@@ -97,7 +100,7 @@ class UserPhotoSquareThumbnails extends UserPhotoSquareThumbnails_Plugin
 		if ( ! $image_name ) return;
 		
 		$image_tmp_name = @ $_FILES['userphoto_image_file']['tmp_name'];
-		// Check this is a successfully uploaded file
+		// Check this is a actual successfully uploaded file
 		if ( ! is_uploaded_file( $image_tmp_name ) ) return;
 		
 		$image_error = @ $_FILES['userphoto_image_file']['error'];
@@ -121,6 +124,47 @@ class UserPhotoSquareThumbnails extends UserPhotoSquareThumbnails_Plugin
 		// We've already checked that this is a non-dodgy uploaded file (see is_uploaded_file above) 
 		// so it's safe to use copy rather than move_uploaded_file.
 		copy( $image_tmp_name, $destination_path );
+		
+		// Resize the photo if necessary
+		if ( $this->side_longer_than( ST_MAX_SIDE, $destination_path ) ) {
+			error_log( "Image too big" );
+			// Scale the image.
+			list($w, $h, $format) = getimagesize( $destination_path );
+			$xratio = ST_MAX_SIDE / $w;
+			$yratio = ST_MAX_SIDE / $h;
+			$ratio = min( $xratio, $yratio );
+			$targetw = (int) $w * $ratio;
+			$targeth = (int) $h * $ratio;
+
+			$src_gd = $this->image_create_from_file( $destination_path );
+			assert( $src_gd );
+			error_log( "imagecreatetruecolor( $targetw, $targeth )" );
+			$target_gd = imagecreatetruecolor( $targetw, $targeth );
+			error_log( "Resize" );
+			error_log( "imagecopyresampled ( $target_gd, $src_gd, 0, 0, 0, 0, $targetw, $targeth, $w, $h );" );
+			imagecopyresampled ( $target_gd, $src_gd, 0, 0, 0, 0, $targetw, $targeth, $w, $h );
+			// create the initial copy from the original file
+			// also overwrite the filename (in case the extension isn't accurate)
+			$destination_filename = preg_replace( '/^.+(?=\.\w+$)/', $userdata->user_nicename . '.original', $_FILES['userphoto_image_file']['name'] );
+			$destination_filename = $this->strip_filename_extension( $destination_filename );
+			if ( $format == IMAGETYPE_GIF ) {
+				$destination_filename .= ".gif";
+				$destination_path = $destination_dir . '/' . $destination_filename;
+				imagegif( $target_gd, $destination_path );
+			} elseif ( $format == IMAGETYPE_JPEG ) {
+				$destination_filename .= ".jpg";
+				$destination_path = $destination_dir . '/' . $destination_filename;
+				error_log( "imagejpeg( $target_gd, $destination_path, ".ST_IMAGE_JPEG_QUALITY." )" );
+				imagejpeg( $target_gd, $destination_path, ST_IMAGE_JPEG_QUALITY );
+			} elseif ( $format == IMAGETYPE_PNG ) {
+				$destination_filename .= ".gif";
+				$destination_path = $destination_dir . '/' . $destination_filename;
+				imagepng( $target_gd, $destination_path );
+			} else {
+				wp_die( 'Unknown image type. Please upload a JPEG, GIF or PNG.' );
+			}
+		}
+
 		// We won't store the whole path, as things might move around
 		update_usermeta( $user_id, "squarethumbs_original_file", $destination_filename );
 	}
@@ -150,14 +194,11 @@ class UserPhotoSquareThumbnails extends UserPhotoSquareThumbnails_Plugin
 		$original_path = $this->userphoto_dir_path() . '/' . $original_file;
 		if ( ! $original_file || ! file_exists( $original_path ) ) {
 			// OK. This is awkward, we're going to have to ask the user to re-upload their pic
-			error_log( "Adding admin notice" );
 			$this->add_admin_notice( __("<strong>The user photo you have previously uploaded is not square.</strong> Please reupload your user photo below, and you will then be able to choose a square crop of it for the thumbnail.") );
 			return;
 		}
 				
 		// We'll add the crop dialog.
-		error_log( 'Adding the crop dialog' );
-
 		// Add the JS. jQuery, imgAreaSelect and our own jQuery reliant script
 		wp_enqueue_script( 'jquery' ); // Probably present, but let's be sure
 		$image_area_select_js = $this->url() . '/js/jquery.imgareaselect-0.5.min.js';
@@ -232,8 +273,8 @@ class UserPhotoSquareThumbnails extends UserPhotoSquareThumbnails_Plugin
 	
 	private function strip_filename_extension( $filename )
 	{
-		$pos = strpos($filename, '.');
-		if ($pos >0) {
+		$pos = strrpos($filename, '.');
+		if ($pos > 0) {
 			return substr($filename, 0, $pos);
 		} else {
 			return $filename;
@@ -257,14 +298,12 @@ class UserPhotoSquareThumbnails extends UserPhotoSquareThumbnails_Plugin
 			);
 		}
 
-		$image_size = getimagesize($filename);
-		if (is_array($image_size)) {
-			$file_type = $image_size[2];
-			if (isset($image_creators[$file_type])) {
-				$image_creator = $image_creators[$file_type];
-				if (function_exists($image_creator)) {
-					return $image_creator($filename);
-				}
+		list( $w, $h, $file_type ) = getimagesize($filename);
+		error_log( "File type: $file_type" );
+		if ( isset( $image_creators[$file_type] ) ) {
+			$image_creator = $image_creators[ $file_type ];
+			if ( function_exists( $image_creator ) ) {
+				return $image_creator( $filename );
 			}
 		}
 
@@ -272,6 +311,11 @@ class UserPhotoSquareThumbnails extends UserPhotoSquareThumbnails_Plugin
 		return false;
 	}
 	
+	private function side_longer_than( $dimension, $filename )
+	{
+		list( $width, $height ) = getimagesize( $filename );
+		return ( ( $width > $dimension ) || ( $height > $dimension ) );
+	}
 	
 	private function thumbnail_is_square( $filename )
 	{
