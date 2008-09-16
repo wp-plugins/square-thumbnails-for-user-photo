@@ -200,20 +200,46 @@ class UserPhotoSquareThumbnails extends UserPhotoSquareThumbnails_Plugin
 		if( ! imagecopyresampled ( $target_gd, $src_gd, 0, 0, $x1, $y1, $thumbnail_dimension, $thumbnail_dimension, $width, $height ) ) {
 			$success = false;
 		}
+
+		// Add some uniqueness into the filename to defeat caching
+		$thumb_filename = $this->strip_filename_extension( $userdata->userphoto_thumb_file );
+		$thumb_filename .= "." . uniqid();
+		$thumb_filename .= ".jpg"; // We're always saving a JPG
+		// Remove old thumbnail file
+		unlink( $target_path );
+		update_usermeta( $profileuser->ID, 'userphoto_thumb_file', $thumb_filename );
+		// Overwrite target path
+		$target_path = $this->userphoto_dir_path() . '/' . $thumb_filename;
+		
 		if( $success && ! imagejpeg( $target_gd, $target_path, 80 ) ) {
 			$success = false;
 		}
+		
+		// Setup User meta data for new thumbnail size
+		update_usermeta( $profileuser->ID, 'userphoto_thumb_height', $height );
+		update_usermeta( $profileuser->ID, 'userphoto_thumb_width', $width );
 
 		// Data to send
 		$data = array();
 		$data['success'] = $success;
-		$data['thumbnail_src'] = $this->userphoto_dir_url() . '/' . $userdata->userphoto_thumb_file;
+		$data['thumbnail_src'] = $this->userphoto_dir_url() . '/' . $thumb_filename;
 		
 		// Make JSON
 		$json = new Moxiecode_JSON();
 		echo $json->encode( $data );
 		exit; // Don't care for anything else getting in on this action
 	}
+	
+	private function strip_filename_extension( $filename )
+	{
+		$pos = strpos($filename, '.');
+		if ($pos >0) {
+			return substr($filename, 0, $pos);
+		} else {
+			return $filename;
+		}
+	}
+
 	
 	// The following was lifted from:
 	// http://uk.php.net/manual/en/ref.image.php
