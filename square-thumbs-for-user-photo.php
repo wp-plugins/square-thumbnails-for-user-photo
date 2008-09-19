@@ -31,6 +31,7 @@ require_once( ABSPATH . '/wp-includes/js/tinymce/plugins/spellchecker/classes/ut
 
 define( 'ST_MAX_SIDE', 600 ); // The max side dimension we will present for cropping
 define( 'ST_IMAGE_JPEG_QUALITY', 85 ); // The JPEG quality to use
+define( 'ST_SQUARE_DIMENSION', 80 ); // The length of the sides of the square
 
 /**
  *
@@ -127,7 +128,6 @@ class UserPhotoSquareThumbnails extends UserPhotoSquareThumbnails_Plugin
 		
 		// Resize the photo if necessary
 		if ( $this->side_longer_than( ST_MAX_SIDE, $destination_path ) ) {
-			error_log( "Image too big" );
 			// Scale the image.
 			list($w, $h, $format) = getimagesize( $destination_path );
 			$xratio = ST_MAX_SIDE / $w;
@@ -138,10 +138,7 @@ class UserPhotoSquareThumbnails extends UserPhotoSquareThumbnails_Plugin
 
 			$src_gd = $this->image_create_from_file( $destination_path );
 			assert( $src_gd );
-			error_log( "imagecreatetruecolor( $targetw, $targeth )" );
 			$target_gd = imagecreatetruecolor( $targetw, $targeth );
-			error_log( "Resize" );
-			error_log( "imagecopyresampled ( $target_gd, $src_gd, 0, 0, 0, 0, $targetw, $targeth, $w, $h );" );
 			imagecopyresampled ( $target_gd, $src_gd, 0, 0, 0, 0, $targetw, $targeth, $w, $h );
 			// create the initial copy from the original file
 			// also overwrite the filename (in case the extension isn't accurate)
@@ -154,7 +151,6 @@ class UserPhotoSquareThumbnails extends UserPhotoSquareThumbnails_Plugin
 			} elseif ( $format == IMAGETYPE_JPEG ) {
 				$destination_filename .= ".jpg";
 				$destination_path = $destination_dir . '/' . $destination_filename;
-				error_log( "imagejpeg( $target_gd, $destination_path, ".ST_IMAGE_JPEG_QUALITY." )" );
 				imagejpeg( $target_gd, $destination_path, ST_IMAGE_JPEG_QUALITY );
 			} elseif ( $format == IMAGETYPE_PNG ) {
 				$destination_filename .= ".gif";
@@ -252,13 +248,13 @@ class UserPhotoSquareThumbnails extends UserPhotoSquareThumbnails_Plugin
 		// Overwrite target path
 		$target_path = $this->userphoto_dir_path() . '/' . $thumb_filename;
 		
-		if( $success && ! imagejpeg( $target_gd, $target_path, 80 ) ) {
+		if( $success && ! imagejpeg( $target_gd, $target_path, ST_IMAGE_JPEG_QUALITY ) ) {
 			$success = false;
 		}
 		
 		// Setup User meta data for new thumbnail size
-		update_usermeta( $profileuser->ID, 'userphoto_thumb_height', $height );
-		update_usermeta( $profileuser->ID, 'userphoto_thumb_width', $width );
+		update_usermeta( $profileuser->ID, 'userphoto_thumb_height', $thumbnail_dimension );
+		update_usermeta( $profileuser->ID, 'userphoto_thumb_width', $thumbnail_dimension );
 
 		// Data to send
 		$data = array();
