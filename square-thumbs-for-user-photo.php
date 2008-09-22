@@ -40,7 +40,7 @@ define( 'ST_SQUARE_DIMENSION', 80 ); // The length of the sides of the square
  **/
 class UserPhotoSquareThumbnails extends UserPhotoSquareThumbnails_Plugin
 {
-	private $admin_notices = array();
+	protected $admin_notices = array();
 	
 	function UserPhotoSquareThumbnails()
 	{
@@ -71,12 +71,12 @@ class UserPhotoSquareThumbnails extends UserPhotoSquareThumbnails_Plugin
 		}
 	}
 	
-	private function add_admin_notice( $msg )
+	protected function add_admin_notice( $msg )
 	{
 		$this->admin_notices[] = $msg;
 	}
 	
-	private function print_admin_notice( $msg )
+	protected function print_admin_notice( $msg )
 	{
 		echo '<div class="plugin-update">';
 		echo $msg;
@@ -88,7 +88,7 @@ class UserPhotoSquareThumbnails extends UserPhotoSquareThumbnails_Plugin
 		$this->process_image_upload( $user_id );
 	}
 	
-	private function process_image_upload( $user_id )
+	protected function process_image_upload( $user_id )
 	{
 		// Process the image upload.
 		// We validate for sanity/security only, all messaging to the 
@@ -240,10 +240,12 @@ class UserPhotoSquareThumbnails extends UserPhotoSquareThumbnails_Plugin
 
 		// Add some uniqueness into the filename to defeat caching
 		$thumb_filename = $this->strip_filename_extension( $userdata->userphoto_thumb_file );
+		$thumb_filename_prefix = $thumb_filename; // We'll use this to delete old ones.
 		$thumb_filename .= "." . uniqid();
 		$thumb_filename .= ".jpg"; // We're always saving a JPG
 		// Remove old thumbnail file
 		unlink( $target_path );
+		$this->unlink_files_prefixed_with( $thumb_filename_prefix );
 		update_usermeta( $profileuser->ID, 'userphoto_thumb_file', $thumb_filename );
 		// Overwrite target path
 		$target_path = $this->userphoto_dir_path() . '/' . $thumb_filename;
@@ -267,7 +269,20 @@ class UserPhotoSquareThumbnails extends UserPhotoSquareThumbnails_Plugin
 		exit; // Don't care for anything else getting in on this action
 	}
 	
-	private function strip_filename_extension( $filename )
+	protected function unlink_files_prefixed_with( $prefix )
+	{
+		$dir_path = $this->userphoto_dir_path();
+		if ( $dir_handle = opendir( $dir_path ) ) {
+		    while ( false !== ( $file = readdir( $dir_handle ) ) ) {
+				if ( stripos( $file, $prefix ) === 0  ) {
+					unlink( $dir_path . '/' . $file );
+				}
+		    }
+		    closedir( $dir_handle );
+		}
+	}
+	
+	protected function strip_filename_extension( $filename )
 	{
 		$pos = strrpos($filename, '.');
 		if ($pos > 0) {
@@ -282,7 +297,7 @@ class UserPhotoSquareThumbnails extends UserPhotoSquareThumbnails_Plugin
 	// http://uk.php.net/manual/en/ref.image.php
 	// With minor mods: ON error now returns false.
 	// No longer accepts xbms (silly format)
-	private function image_create_from_file( $filename )
+	protected function image_create_from_file( $filename )
 	{
 		static $image_creators;
 
@@ -295,7 +310,6 @@ class UserPhotoSquareThumbnails extends UserPhotoSquareThumbnails_Plugin
 		}
 
 		list( $w, $h, $file_type ) = getimagesize($filename);
-		error_log( "File type: $file_type" );
 		if ( isset( $image_creators[$file_type] ) ) {
 			$image_creator = $image_creators[ $file_type ];
 			if ( function_exists( $image_creator ) ) {
@@ -307,19 +321,19 @@ class UserPhotoSquareThumbnails extends UserPhotoSquareThumbnails_Plugin
 		return false;
 	}
 	
-	private function side_longer_than( $dimension, $filename )
+	protected function side_longer_than( $dimension, $filename )
 	{
 		list( $width, $height ) = getimagesize( $filename );
 		return ( ( $width > $dimension ) || ( $height > $dimension ) );
 	}
 	
-	private function thumbnail_is_square( $filename )
+	protected function thumbnail_is_square( $filename )
 	{
 		list( $width, $height ) = getimagesize( $filename );
 		return ( $width == $height );
 	}
 	
-	private function get_profileuser()
+	protected function get_profileuser()
 	{
 		$user_id = (int) @ $_REQUEST[ 'user_id' ];
 		
@@ -365,27 +379,27 @@ class UserPhotoSquareThumbnails extends UserPhotoSquareThumbnails_Plugin
 		exit; // Don't care for anything else getting in on this action
 	}
 
-	private function escape_for_js( $string )
+	protected function escape_for_js( $string )
 	{
 		return strtr( $string, array('\\'=>'\\\\',"'"=>"\\'",'"'=>'\\"',"\r"=>'\\r',"\n"=>'\\n','</'=>'<\/') );
 	}
 	
-	private function remove_original_image()
+	protected function remove_original_image()
 	{
 		// SWTODO: Remove original image method
 	}
 	
-	private function userphoto_dir_path()
+	protected function userphoto_dir_path()
 	{
 		return WP_CONTENT_DIR . "/uploads/userphoto";
 	}
 	
-	private function userphoto_dir_url()
+	protected function userphoto_dir_url()
 	{
 		return WP_CONTENT_URL . "/uploads/userphoto";
 	}
 	
-	private function sanity_checks()
+	protected function sanity_checks()
 	{
 		// Check that the User Photo plugin is present
 		if ( ! function_exists( 'userphoto__get_userphoto' ) || ! defined( 'USERPHOTO_PLUGIN_IDENTIFIER' ) ) {

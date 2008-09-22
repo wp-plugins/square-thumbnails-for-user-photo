@@ -55,6 +55,7 @@ function remember_crop( img, crop )
 
 function commit_crop()
 {
+	jQuery( 'button#commit_crop' ).text( 'Please wait...' ).attr( 'disabled', true );
 	var data = {
 		_wpnonce: jQuery( '#_wpnonce' ).val(),
 		action: 'crop_commit',
