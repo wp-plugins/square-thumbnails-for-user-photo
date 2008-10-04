@@ -4,7 +4,7 @@ Donate link: http://www.simonwheatley.co.uk/wordpress/
 Tags: user photo, thumbnails, author photo
 Requires at least: 2.6
 Tested up to: 2.6.1
-Stable tag: trunk
+Stable tag: 0.35b
 
 *BETA* Extends the [User Photo plugin](http://wordpress.org/extend/plugins/user-photo/) to allow the generation of square thumbnails. *BETA*
 
