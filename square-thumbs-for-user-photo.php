@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: Square Thumbnails for User Photo
-Plugin URI: http://simonwheatley.co.uk/wordpress1/
-Description: Extends the <a href="http://wordpress.org/extend/plugins/user-photo/">User Photo plugin</a> to allow the generation of square thumbnails. 
+Plugin URI: http://wordpress.org/extend/plugins/square-thumbnails-for-user-photo/
+Description: Extends the <a href="http://wordpress.org/extend/plugins/user-photo/">User Photo plugin</a> to allow the generation of square thumbnails. (Requires the User Photo plugin, WILL NOT WORK otherwise.)
 Author: Simon Wheatley
-Version: 0.2b
-Author URI: http://simonwheatley.co.uk/wordpress1/
+Version: 0.3b
+Author URI: http://simonwheatley.co.uk/wordpress/
 */
 
 /*  Copyright 2008 Simon Wheatley
