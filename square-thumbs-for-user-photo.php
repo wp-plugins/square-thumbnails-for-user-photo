@@ -4,7 +4,7 @@ Plugin Name: Square Thumbnails for User Photo
 Plugin URI: http://wordpress.org/extend/plugins/square-thumbnails-for-user-photo/
 Description: Extends the <a href="http://wordpress.org/extend/plugins/user-photo/">User Photo plugin</a> to allow the generation of square thumbnails. (Requires the User Photo plugin, WILL NOT WORK otherwise.)
 Author: Simon Wheatley
-Version: 0.35b
+Version: 1.0
 Author URI: http://simonwheatley.co.uk/wordpress/
 */
 

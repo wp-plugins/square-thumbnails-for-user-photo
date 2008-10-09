@@ -3,14 +3,18 @@ Contributors: simonwheatley
 Donate link: http://www.simonwheatley.co.uk/wordpress/
 Tags: user photo, thumbnails, author photo
 Requires at least: 2.6
-Tested up to: 2.6.1
-Stable tag: 0.35b
+Tested up to: 2.6.2
+Stable tag: 1.0
 
-*BETA* Extends the [User Photo plugin](http://wordpress.org/extend/plugins/user-photo/) to allow the generation of square thumbnails. *BETA*
+Extends the [User Photo plugin](http://wordpress.org/extend/plugins/user-photo/) to allow the generation of square thumbnails.
 
 == Description ==
 
-*WARNING: THIS PLUGIN IS IN BETA AND MAY NOT WORK EXPECTED OR DESCRIBED. PLEASE USE WITH CAUTION.*
+Extends the [User Photo plugin](http://wordpress.org/extend/plugins/user-photo/) to allow the generation of square thumbnails. You MUST have the User Photo plugin installed, or this plugin will NOT work.
+
+Plugin initially produced on behalf of [Puffbox](http://www.puffbox.com).
+
+Is this plugin lacking a feature you want? I'm happy to accept offers of feature sponsorship: [contact me](http://www.simonwheatley.co.uk/contact-me/) and we can discuss your ideas.
 
 Any issues: [contact me](http://www.simonwheatley.co.uk/contact-me/).
 
@@ -29,4 +33,8 @@ The plugin is simple to install:
 = v0.1b 2008/08/21 =
 
 * Plugin first sees the light of day.
+
+= v1.0 2008/10/09 =
+
+* First stable release
 
