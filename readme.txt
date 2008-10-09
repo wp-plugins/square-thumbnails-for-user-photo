@@ -1,10 +1,10 @@
-=== Author Listing ===
+=== Square Thumbs for User Photo ===
 Contributors: simonwheatley
 Donate link: http://www.simonwheatley.co.uk/wordpress/
 Tags: user photo, thumbnails, author photo
 Requires at least: 2.6
 Tested up to: 2.6.2
-Stable tag: 1.0
+Stable tag: 1.01
 
 Extends the [User Photo plugin](http://wordpress.org/extend/plugins/user-photo/) to allow the generation of square thumbnails.
 
@@ -37,4 +37,8 @@ The plugin is simple to install:
 = v1.0 2008/10/09 =
 
 * First stable release
+
+= v1.0 2008/10/09 =
+
+* Managed to release with the wrong plugin name in the docs, now corrected
 
