@@ -391,12 +391,14 @@ class UserPhotoSquareThumbnails extends UserPhotoSquareThumbnails_Plugin
 	
 	protected function userphoto_dir_path()
 	{
-		return WP_CONTENT_DIR . "/uploads/userphoto";
+		$upload_dir = wp_upload_dir();
+		return $upload_dir[ 'basedir' ] . "/userphoto";
 	}
 	
 	protected function userphoto_dir_url()
 	{
-		return WP_CONTENT_URL . "/uploads/userphoto";
+		$upload_dir = wp_upload_dir();
+		return $upload_dir[ 'baseurl' ] . "/userphoto";
 	}
 	
 	protected function sanity_checks()

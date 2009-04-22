@@ -1,10 +1,10 @@
 === Square Thumbs for User Photo ===
 Contributors: simonwheatley
 Donate link: http://www.simonwheatley.co.uk/wordpress/
-Tags: user photo, thumbnails, author photo
+Tags: user photo, thumbnails, author photo, wpmu, wordpress mu
 Requires at least: 2.6
-Tested up to: 2.6.2
-Stable tag: 1.01
+Tested up to: 2.7.1
+Stable tag: 1.1
 
 Extends the [User Photo plugin](http://wordpress.org/extend/plugins/user-photo/) to allow the generation of square thumbnails.
 
@@ -30,9 +30,14 @@ The plugin is simple to install:
 
 == Change Log ==
 
-= v0.1b 2008/08/21 =
+= v1.1 2009/04/22 =
 
-* Plugin first sees the light of day.
+* Fixed directory and URL path finding
+* Now tested and works on WPMu
+
+= v1.01 2008/08/21 =
+
+* Plugin published
 
 = v1.0 2008/10/09 =
 
