@@ -54,6 +54,8 @@ class UserPhotoSquareThumbnails extends UserPhotoSquareThumbnails_Plugin
 		// Check the thumbnail when on your profile, or other people's profiles
 		$this->add_action( 'load-profile.php', 'maybe_add_crop_dialog' );
 		$this->add_action( 'load-user-edit.php', 'maybe_add_crop_dialog' );
+		// Custom action, use do_action( 'stfup_load_profile' ); BEFORE loading the admin header in any custom profile pages
+		$this->add_action( 'stfup_load_profile', 'maybe_add_crop_dialog' );
 		// Answer crop dialog AJAX calls
 		$this->add_action( 'wp_ajax_crop_widget_html', 'crop_widget_html' );
 		$this->add_action( 'wp_ajax_crop_commit', 'crop_commit' );
@@ -358,13 +360,13 @@ class UserPhotoSquareThumbnails extends UserPhotoSquareThumbnails_Plugin
 		
 		$thumbnail_dimension = get_option( 'userphoto_thumb_dimension' );
 
-		$template_vars = array(
+		$vars = array(
 			'img_src' => $img_src,
 			'img_height' => $img_height,
 			'img_width' => $img_width,
 			'thumbnail_dimension' => $thumbnail_dimension
 		);
-		$html_src = $this->capture_admin ( 'crop_widget_html', $template_vars );
+		$html_src = $this->capture_admin ( 'crop_widget_html', $vars );
 		
 		// Data to send
 		$data = array();
@@ -381,7 +383,7 @@ class UserPhotoSquareThumbnails extends UserPhotoSquareThumbnails_Plugin
 
 	protected function escape_for_js( $string )
 	{
-		return strtr( $string, array('\\'=>'\\\\',"'"=>"\\'",'"'=>'\\"',"\r"=>'\\r',"\n"=>'\\n','</'=>'<\/') );
+		return js_escape( $string );
 	}
 	
 	protected function remove_original_image()

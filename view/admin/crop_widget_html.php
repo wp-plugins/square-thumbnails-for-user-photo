@@ -8,7 +8,7 @@
 			alt=""
 			height="<?php echo $img_height; ?>" 
 			src="<?php echo $img_src; ?>" 
-			width="<?php $img_width; ?>" 
+			width="<?php echo $img_width; ?>" 
 			 />
 	</div>
 </div><!-- #st_wdgt -->

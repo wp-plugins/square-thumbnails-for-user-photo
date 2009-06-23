@@ -30,6 +30,11 @@ The plugin is simple to install:
 
 == Change Log ==
 
+= v1.2 2009/06/23 =
+
+* Fixed a bug relating to image width not being set and that screwing IE up
+* Now using WPs JS escape methods rather than my home brew version (should be safer)
+
 = v1.1 2009/04/22 =
 
 * Fixed directory and URL path finding
