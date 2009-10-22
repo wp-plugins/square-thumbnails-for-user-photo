@@ -4,7 +4,7 @@ Plugin Name: Square Thumbnails for User Photo
 Plugin URI: http://wordpress.org/extend/plugins/square-thumbnails-for-user-photo/
 Description: Extends the <a href="http://wordpress.org/extend/plugins/user-photo/">User Photo plugin</a> to allow the generation of square thumbnails. (Requires the User Photo plugin, WILL NOT WORK otherwise.)
 Author: Simon Wheatley
-Version: 1.2
+Version: 1.2.1
 Author URI: http://simonwheatley.co.uk/wordpress/
 */
 
@@ -174,11 +174,15 @@ class UserPhotoSquareThumbnails extends UserPhotoSquareThumbnails_Plugin
 		// Check if the thumbnail even exists
 		// Construct the filename
 		$thumbnail = $profileuser->userphoto_thumb_file;
-		// If it doesn't exist, then we need not continue
+		// If the location wasn't stored, then we need not continue
 		if ( ! $thumbnail ) return;
-
+		
 		// Check if the existing thumbnail is square
 		$filename = $this->userphoto_dir_path() . '/' . $thumbnail;
+		
+		// Check the file exists, and hasn't been deleted or moved for some reason
+		if ( ! file_exists( $filename ) ) return;
+		
 		// If it's already square, then we can remove the image
 		if ( $this->thumbnail_is_square( $filename ) ) {
 			$this->remove_original_image();
